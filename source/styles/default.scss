@@ -2,5 +2,10 @@ body, body * {
    box-sizing: border-box;
 }
 .test {
+  display: flex;
+  justify-content: flex-end;
   color: $color-red;
+  &::placeholder {
+    color: gray;
+  }
 }
