@@ -9,6 +9,11 @@ const postcss = require("gulp-postcss")
 const autoprefixer = require("autoprefixer");
 const csso = require('gulp-csso');
 
+//для передачи параметра в командную строку
+const argv = require("yargs").argv;
+
+const gulpif = require("gulp-if")
+
 //удаление
 function clean() {
   return del("build");
@@ -23,7 +28,7 @@ function copy () {
     .pipe(dest("build"));
 }
 //стили с минификации
-function styleProduction () {
+function style () {
   return src([
     "source/styles/main.scss"
   ])
@@ -31,8 +36,8 @@ function styleProduction () {
     .pipe(postcss([
       autoprefixer()
     ]))
-    .pipe(csso())
-    .pipe(rename("style.min.css"))
+    .pipe(gulpif(argv.production, csso()))
+    .pipe(gulpif(argv.production, rename("style.min.css"), rename("style.css")))
     .pipe(dest("build/css"));
 }
 //стили без минификации
@@ -64,19 +69,11 @@ function server () {
   });
 }
 
-//команда для сборки дева
-exports["build-dev"] = series(
+exports.build = series(
   clean,
   copy,
-  styleDev,
+  style,
   scripts,
   server
 );
-//команда для сборки прода
-exports["build-prod"] = series(
-  clean,
-  copy,
-  styleProduction,
-  scripts,
-  server
-);
+
